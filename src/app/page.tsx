@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-
+import InvoiceForm from "@/components/invoice-form";
+import Container from "./container";
 const Home = () => {
   return (
-    <>
-      <Button>test</Button>
-    </>
+    <Container>
+      <InvoiceForm/>
+    </Container>
   );
 };
 

@@ -9,7 +9,6 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
 // Dynamically import ModeToggle with ssr: false
@@ -25,29 +24,31 @@ const Header = () => {
   }, []);
 
   return (
-    <header>
+    <header className="w-full bg-background border-b">
       <Container>
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <Link href="/" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Home
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/product" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Product
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              {isMounted && <ModeToggle />}
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+        <div className="flex justify-between items-center">
+          <NavigationMenu>
+            <NavigationMenuList className="flex items-center space-x-6">
+              <NavigationMenuItem>
+                <Link href="/" legacyBehavior passHref>
+                  <NavigationMenuLink className="text-sm font-medium text-muted-foreground hover:text-primary">
+                    Home
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link href="/product" legacyBehavior passHref>
+                  <NavigationMenuLink className="text-sm font-medium text-muted-foreground hover:text-primary">
+                    Product
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          <div>
+            {isMounted && <ModeToggle />}
+          </div>
+        </div>
       </Container>
     </header>
   );
