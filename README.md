@@ -1,4 +1,9 @@
 # widatech-client
+## before running client-side
+visit https://github.com/vincentkho67/widatech-api
+run the server first.
+after the server running without issue then follow this:
+
 to run:
 ```
 npm run build
