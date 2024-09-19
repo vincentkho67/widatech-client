@@ -1,4 +1,5 @@
-import InvoiceForm from "@/components/invoice-form";
+
+import InvoiceForm from "@/components/InvoiceForm";
 import Container from "./container";
 const Home = () => {
   return (
