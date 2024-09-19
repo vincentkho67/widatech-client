@@ -1,15 +1,27 @@
+"use client";
 
-import InvoiceForm from "@/components/Invoices/InvoiceForm";
-import Container from "./container";
-import InvoiceList from "@/components/Invoices/InvoiceList";
-import TimeSeriesGraph from "@/components/Invoices/TimeSeriesGraph";
+import { useEffect, useState } from "react";
+import WidaTechAnimation from "@/components/animation/WidaTechAnimation";
+import DashboardCarousel from "@/components/dashboard-carousel";
+
 const Home = () => {
+  const [showAnimation, setShowAnimation] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowAnimation(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <Container>
-      <TimeSeriesGraph/>
-      {/* <InvoiceList/> */}
-      {/* <InvoiceForm/> */}
-    </Container>
+    <div className="container mx-auto px-4 py-8">
+      {showAnimation ? (
+        <WidaTechAnimation />
+      ) : (
+        <DashboardCarousel />
+      )}
+    </div>
   );
 };
 

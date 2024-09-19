@@ -37,9 +37,9 @@ const Header = () => {
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/product" legacyBehavior passHref>
+                <Link href="/invoice" legacyBehavior passHref>
                   <NavigationMenuLink className="text-sm font-medium text-muted-foreground hover:text-primary">
-                    Product
+                    Invoice
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
