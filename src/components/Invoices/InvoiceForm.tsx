@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { InvoiceFormData } from '@/types/invoice';
 
-import CustomerInfoSection from '@/components/InvoiceForm/CustomerInfoSection';
+import CustomerInfoSection from '@/components/Invoices/InvoiceForm/CustomerInfoSection';
 
 import { useInitialSuggestions } from '@/hooks/useInitialSuggestion';
 import { useInvoiceSubmission } from '@/hooks/useInvoiceSubmission';

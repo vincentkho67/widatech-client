@@ -6,14 +6,15 @@ import Footer from "../components/footer";
 import Container from "./container";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { ReduxProvider } from "@/components/redux-provider";
 
 const geistSans = localFont({
-  src: "../lib/GeistVF.woff",
+  src: "../../fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 const geistMono = localFont({
-  src: "../lib/GeistMonoVF.woff",
+  src: "../../fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
@@ -42,13 +43,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <main className="flex-1">
-            <Container>{children}
-              <Toaster/>
-            </Container>
-          </main>
-          <Footer />
+          <ReduxProvider>
+            <Header />
+            <main className="flex-1">
+              <Container>{children}
+                <Toaster/>
+              </Container>
+            </main>
+            <Footer />
+          </ReduxProvider>
         </ThemeProvider>
       </body>
     </html>

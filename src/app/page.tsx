@@ -1,10 +1,12 @@
 
-import InvoiceForm from "@/components/InvoiceForm";
+import InvoiceForm from "@/components/Invoices/InvoiceForm";
 import Container from "./container";
+import InvoiceList from "@/components/Invoices/InvoiceList";
 const Home = () => {
   return (
     <Container>
-      <InvoiceForm/>
+      <InvoiceList/>
+      {/* <InvoiceForm/> */}
     </Container>
   );
 };

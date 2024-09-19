@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { InvoiceFormData } from '@/types/invoice';
 import { Product } from '@/types/product';
 
-import { Input } from '../ui/input';
+import { Input } from '../../ui/input';
 import ProductSearchInput from './ProductSearchInput';
 
 interface ProductsSectionProps {
