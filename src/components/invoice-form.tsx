@@ -9,46 +9,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from '@/hooks/use-toast';
 import debounce from 'lodash/debounce';
-
-interface Product {
-  id: number;
-  name: string;
-  picture_url: string;
-  stock: number;
-  price: number;
-}
-
-interface ApiResponse {
-  data: Product[];
-  meta: {
-    totalItems: number;
-    itemsPerPage: number;
-    currentPage: number;
-    totalPages: number;
-    isSearch: boolean;
-  };
-}
-
-interface InvoiceFormData {
-  date: string;
-  customer_name: string;
-  salesperson_name: string;
-  payment_type: 'CASH' | 'CREDIT' | 'NOTCASHORCREDIT';
-  notes: string;
-  products: {
-    product_id: number;
-    quantity: number;
-    name?: string;
-    price?: number;
-  }[];
-}
+import { Product } from '@/types/product';
+import { ProductApiResponse } from '@/types/api-response/products/response';
+import { InvoiceFormData } from '@/types/invoice';
 
 const InvoiceForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState<{ [key: number]: boolean }>({});
   const [suggestions, setSuggestions] = useState<{ [key: number]: Product[] }>({});
   const [initialSuggestions, setInitialSuggestions] = useState<Product[]>([]);
 
-  const { register, control, handleSubmit, setValue, watch, formState: { errors } } = useForm<InvoiceFormData>({
+  const { register, control, handleSubmit, setValue, watch, formState: { errors }, reset } = useForm<InvoiceFormData>({
     defaultValues: {
       products: [{ product_id: 0, quantity: 1, name: '' }],
       payment_type: 'CREDIT'
@@ -61,7 +31,6 @@ const InvoiceForm: React.FC = () => {
   });
 
   useEffect(() => {
-    // Fetch initial suggestions when the component mounts
     fetchInitialSuggestions();
   }, []);
 
@@ -79,7 +48,7 @@ const InvoiceForm: React.FC = () => {
     setIsLoading(prev => ({ ...prev, [index]: true }));
     try {
       const response = await fetch(`http://localhost:8080/api/products?q=${query}`);
-      const data: ApiResponse = await response.json();
+      const data: ProductApiResponse = await response.json();
       setSuggestions(prev => ({ ...prev, [index]: data.data }));
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -138,7 +107,16 @@ const InvoiceForm: React.FC = () => {
           title: 'Success',
           description: 'Invoice created successfully!',
         });
-        // Optional: Reset form or redirect user
+
+        reset({
+          customer_name: '',
+          salesperson_name: '',
+          payment_type: 'CREDIT',
+          date: '',
+          notes: '',
+          products: [{ product_id: 0, quantity: 1, name: '' }]
+        });
+        
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create invoice');
