@@ -1,17 +1,12 @@
 'use client';
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import Container from "../container";
+import InvoiceForm from "@/components/Invoices/InvoiceForm";
 
 const Product = () => {
   return (
-    <>
-      <Button
-        onClick={() => toast({ title: 'Test', description: 'This is a test toast' })}
-        className="mt-4"
-      >
-        Test Toast
-      </Button>
-    </>
+    <Container>
+      <InvoiceForm/>
+    </Container>
   );
 };
 

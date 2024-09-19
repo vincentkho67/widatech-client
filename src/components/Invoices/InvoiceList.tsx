@@ -30,8 +30,8 @@ const InvoiceList: React.FC = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="max-w-3xl mx-auto mt-4">
+      <div className="shadow-md rounded-lg overflow-hidden">
         <div className="max-h-[600px] overflow-y-auto p-4">
           {items.slice(0, 10).map((invoice) => (
             <InvoiceCard

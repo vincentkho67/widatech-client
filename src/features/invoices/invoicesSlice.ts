@@ -14,11 +14,19 @@ interface Invoice {
     quantity: number;
     invoice_id: number;
     product_id: number;
+    Product: {
+      id: number;
+      name: string;
+      picture_url: string;
+      stock: number;
+      price: number;
+    };
   }>;
 }
 
 interface InvoicesState {
   items: Invoice[];
+  allInvoices: Invoice[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   meta: {
@@ -31,6 +39,7 @@ interface InvoicesState {
 
 const initialState: InvoicesState = {
   items: [],
+  allInvoices: [],
   status: 'idle',
   error: null,
   meta: {
@@ -40,6 +49,14 @@ const initialState: InvoicesState = {
     totalPages: 1,
   },
 };
+
+export const fetchAllInvoices = createAsyncThunk(
+  'invoices/fetchAllInvoices',
+  async () => {
+    const response = await axios.get('http://localhost:8080/api/invoices/all');
+    return response.data;
+  }
+);
 
 export const fetchInvoices = createAsyncThunk(
   'invoices/fetchInvoices',
@@ -66,6 +83,17 @@ const invoicesSlice = createSlice({
       .addCase(fetchInvoices.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch invoices';
+      })
+      .addCase(fetchAllInvoices.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchAllInvoices.fulfilled, (state, action: PayloadAction<Invoice[]>) => {
+        state.status = 'succeeded';
+        state.allInvoices = action.payload;
+      })
+      .addCase(fetchAllInvoices.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to fetch all invoices';
       });
   },
 });

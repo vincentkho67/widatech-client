@@ -2,10 +2,12 @@
 import InvoiceForm from "@/components/Invoices/InvoiceForm";
 import Container from "./container";
 import InvoiceList from "@/components/Invoices/InvoiceList";
+import TimeSeriesGraph from "@/components/Invoices/TimeSeriesGraph";
 const Home = () => {
   return (
     <Container>
-      <InvoiceList/>
+      <TimeSeriesGraph/>
+      {/* <InvoiceList/> */}
       {/* <InvoiceForm/> */}
     </Container>
   );
