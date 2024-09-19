@@ -54,7 +54,7 @@ const InvoiceList: React.FC = () => {
           <span className="text-sm text-gray-700">
             Page {meta.currentPage} of {meta.totalPages} 
           </span>
-          <span className='text-xs' text-gray-700>
+          <span className="text-xs text-gray-700">
             Showing {meta.totalItems} results
           </span>
           <Button
