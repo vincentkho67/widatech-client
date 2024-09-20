@@ -25,3 +25,8 @@ npm run start
 ## Night Theme Support
 -- not yet fully implemented --
 ![alt text](image-4.png)
+
+## Built With
+- Typescript
+- NextJS
+- shadcn UI
