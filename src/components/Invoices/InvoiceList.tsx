@@ -40,6 +40,7 @@ const InvoiceList: React.FC = () => {
               salesperson={invoice.salesperson}
               totalAmount={invoice.InvoiceDetails.reduce((sum, detail) => sum + detail.quantity, 0)}
               notes={invoice.notes}
+              created_at={invoice.createdAt}
             />
           ))}
         </div>

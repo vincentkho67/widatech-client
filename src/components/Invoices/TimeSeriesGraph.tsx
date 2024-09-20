@@ -1,16 +1,24 @@
 "use client";
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceArea } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceArea, BarChart, Bar } from 'recharts';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { fetchAllInvoices } from '@/features/invoices/invoicesSlice';
-import { format, startOfDay, startOfWeek, startOfMonth, addDays, addWeeks, addMonths } from 'date-fns';
+import { format, startOfDay, startOfWeek, startOfMonth, addDays, addWeeks, addMonths, parseISO } from 'date-fns';
 import { useAppDispatch, useAppSelector } from '@/lib/redux-hooks';
 import axios from 'axios';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+
+interface Invoice {
+  id: number;
+  amount: number;
+  createdAt: string;
+}
 
 interface ChartDataPoint {
   date: string;
   revenue: number;
+  invoices?: Invoice[];
 }
 
 const TimeSeriesGraph: React.FC = () => {
@@ -20,13 +28,15 @@ const TimeSeriesGraph: React.FC = () => {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [zoomState, setZoomState] = useState<{ start: number | null; end: number | null }>({ start: null, end: null });
   const [originalData, setOriginalData] = useState<ChartDataPoint[]>([]);
-
+  const [selectedInvoices, setSelectedInvoices] = useState<Invoice[] | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
   useEffect(() => {
     dispatch(fetchAllInvoices());
   }, [dispatch]);
 
   const processData = useCallback((invoices: typeof allInvoices, range: typeof timeRange): ChartDataPoint[] => {
-    const revenueMap = new Map<string, number>();
+    const revenueMap = new Map<string, { revenue: number; invoices: Invoice[] }>();
 
     invoices.forEach(invoice => {
       const date = new Date(invoice.createdAt);
@@ -47,7 +57,12 @@ const TimeSeriesGraph: React.FC = () => {
       const revenue = invoice.InvoiceDetails.reduce((total, detail) => 
         total + (detail.quantity * detail.Product.price), 0);
 
-      revenueMap.set(key, (revenueMap.get(key) || 0) + revenue);
+      if (!revenueMap.has(key)) {
+        revenueMap.set(key, { revenue: 0, invoices: [] });
+      }
+      const data = revenueMap.get(key)!;
+      data.revenue += revenue;
+      data.invoices.push({ id: invoice.id, amount: revenue, createdAt: invoice.createdAt });
     });
 
     const sortedData = Array.from(revenueMap.entries())
@@ -64,9 +79,11 @@ const TimeSeriesGraph: React.FC = () => {
 
     while (currentDate <= endDate) {
       const key = format(currentDate, range === 'monthly' ? 'yyyy-MM' : 'yyyy-MM-dd');
+      const data = revenueMap.get(key);
       filledData.push({
         date: key,
-        revenue: revenueMap.get(key) || 0
+        revenue: data ? data.revenue : 0,
+        invoices: data ? data.invoices : []
       });
 
       switch (range) {
@@ -116,29 +133,18 @@ const TimeSeriesGraph: React.FC = () => {
     }
   }, [timeRange]);
 
-  const handleClick = useCallback(async (event: any) => {
+  const handleClick = useCallback((event: any) => {
     if (!chartData.length) return;
 
     const index = event.activeTooltipIndex;
     if (index === undefined) return;
 
-    if (zoomState.start === null) {
-      setZoomState({ start: index, end: null });
-    } else if (zoomState.end === null) {
-      const startIndex = Math.min(zoomState.start, index);
-      const endIndex = Math.max(zoomState.start, index);
-      
-      if (startIndex >= 0 && endIndex < chartData.length) {
-        const selectedDate = chartData[startIndex].date;
-
-        const zoomedData = await fetchZoomedData(selectedDate);
-        if (zoomedData.length > 0) {
-          setChartData(zoomedData);
-        }
-      }
-      setZoomState({ start: null, end: null });
+    const clickedData = chartData[index];
+    if (clickedData.invoices && clickedData.invoices.length > 0) {
+      setSelectedInvoices(clickedData.invoices);
+      setIsDialogOpen(true);
     }
-  }, [chartData, zoomState, fetchZoomedData]);
+  }, [chartData]);
 
   const handleZoomOut = useCallback(() => {
     setChartData(originalData);
@@ -146,6 +152,23 @@ const TimeSeriesGraph: React.FC = () => {
   }, [originalData]);
 
   const isZoomedIn = useMemo(() => chartData.length !== originalData.length, [chartData, originalData]);
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip bg-white p-4 border rounded shadow">
+          <p className="label">{`Date: ${formatXAxis(label)}`}</p>
+          <p className="revenue">{`Revenue: $${payload[0].value.toFixed(2)}`}</p>
+          <p>Click to view invoice details</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const formatInvoiceDate = (dateString: string) => {
+    return format(parseISO(dateString), 'MMM dd, HH:mm');
+  };
 
   return (
     <Card className="w-full mt-4">
@@ -184,10 +207,7 @@ const TimeSeriesGraph: React.FC = () => {
               tickFormatter={formatXAxis}
             />
             <YAxis />
-            <Tooltip 
-              labelFormatter={(value) => formatXAxis(value as string)}
-              formatter={(value: number) => [`$${value.toFixed(2)}`, "Revenue"]}
-            />
+            <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Line type="monotone" dataKey="revenue" stroke="#8884d8" activeDot={{ r: 8 }} />
             {zoomState.start !== null && chartData[zoomState.start] && (
@@ -200,6 +220,42 @@ const TimeSeriesGraph: React.FC = () => {
           </LineChart>
         </ResponsiveContainer>
       </CardContent>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Invoice Details</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4" style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer>
+              <BarChart
+                data={selectedInvoices || []}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="createdAt" 
+                  tickFormatter={formatInvoiceDate}
+                  label={{ value: 'Creation Time', position: 'insideBottom', offset: -5 }}
+                />
+                <YAxis 
+                  label={{ value: '', angle: -90, position: 'insideLeft' }}
+                />
+                <Tooltip
+                  labelFormatter={formatInvoiceDate}
+                  formatter={(value: number, name: string, props: any) => [`$${value.toFixed(2)}`, `Invoice #${props.payload.id}`]}
+                />
+                <Bar dataKey="amount" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
