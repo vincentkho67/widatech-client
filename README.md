@@ -12,10 +12,11 @@ npm run start
 ```
 ## Main Feature Carousel
 ### Time Series Graph
+![alt text](image-1.png)
 ![alt text](image.png)
 
 ### Invoice Card List
-![alt text](image-1.png)
+![alt text](image-5.png)
 
 ## Invoice POST form
 ![alt text](image-2.png)
