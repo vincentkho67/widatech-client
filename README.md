@@ -6,6 +6,7 @@ after the server running without issue then follow this:
 
 to run:
 ```
+npm install
 npm run build
 npm run start
 ```
